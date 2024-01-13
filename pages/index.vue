@@ -189,93 +189,113 @@
 </template>
 
 <script setup>
+// Importing necessary functions and modules from Vue and Vuex
 import { onBeforeMount } from 'vue';
-import { computed } from 'vue';
-import { reactive } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { useStore } from "vuex";
 
+// Accessing the Vuex store instance
 const store = useStore();
+
+// Creating a ref for the taskForm element
 const taskForm = ref();
-const tasks = computed(() => { return store.getters["tasks/list"]; });
 
+// Creating a computed property for tasks using Vuex store getters
+const tasks = computed(() => { return store.getters["tasks/list"] });
+
+// Validation rules
 const rules = reactive({
-	required: value => !!value || 'This field is required.',
-	counter: value => value.length <= 60 || 'This field must be less than 60 characters',
+  required: value => !!value || 'This field is required.',
+  counter: value => value.length <= 60 || 'This field must be less than 60 characters',
 });
 
+// Form model
 const model = reactive({
-	scrollInvoked: 0,
-	isLoading: false,
-	dialog: false,
-	snackbar: false,
-	snackbarMessage: null,
-	isRemoveAllTask: false,
-	name: null,
+  scrollInvoked: 0,
+  isLoading: false,
+  dialog: false,
+  snackbar: false,
+  snackbarMessage: null,
+  isRemoveAllTask: false,
+  name: null,
 });
 
+// Event handler for the scroll event
 const onScroll = () => {
-	model.scrollInvoked++
+  model.scrollInvoked++
 }
 
+// Asynchronous function to create a new task
 const createNewTask = async () => {
-	model.isLoading = true;
-	const { valid } = await taskForm.value.validate();
+  model.isLoading = true;
+  // Validating the task form
+  const { valid } = await taskForm.value.validate();
 
-	if (valid) {
-		const lastId = tasks.value.length > 0 ? tasks.value[tasks.value.length - 1].id : 0;
-		store.dispatch("tasks/save", {
-			id: lastId + 1,
-			name: model.name,
-			status: true
-		});
-	}
-	model.snackbarMessage = 'Task has been created successfully!';
-	model.snackbar = true;
-	model.name = null;
-	model.isLoading = false;
+  if (valid) {
+    // Creating a new task and dispatching it to the Vuex store
+    const lastId = tasks.value.length > 0 ? tasks.value[tasks.value.length - 1].id : 0;
+    store.dispatch("tasks/save", {
+      id: lastId + 1,
+      name: model.name,
+      status: true
+    });
+  }
+  // Updating snackbar message and visibility
+  model.snackbarMessage = 'Task has been created successfully!';
+  model.snackbar = true;
+  model.name = null;
+  model.isLoading = false;
 }
 
+// mark a task as done
 const tagAsDone = (task) => {
-	store.dispatch('tasks/tagAsDone', task);
+  store.dispatch('tasks/tagAsDone', task);
 }
 
+// remove all tasks marked as done
 const removeAllTagAsDone = () => {
-	const data = tasks.value.filter(task => task.status !== true).map(task => task.id);
-	model.dialog = false;
-	model.snackbarMessage = 'All task tag as done has been removed successfully!';
-	model.snackbar = true;
-	store.dispatch('tasks/removeAllTagAsDone', data);
+  const data = tasks.value.filter(task => task.status !== true).map(task => task.id);
+  model.dialog = false;
+  model.snackbarMessage = 'All task tag as done has been removed successfully!';
+  model.snackbar = true;
+  store.dispatch('tasks/removeAllTagAsDone', data);
 }
 
+// remove all tasks
 const removeAllTasks = () => {
-	model.dialog = false;
-	model.isRemoveAllTask = false;
-	model.snackbarMessage = 'All task has been removed successfully!';
-	model.snackbar = true;
-	store.dispatch('tasks/removeAllTasks');
+  model.dialog = false;
+  model.isRemoveAllTask = false;
+  model.snackbarMessage = 'All task has been removed successfully!';
+  model.snackbar = true;
+  store.dispatch('tasks/removeAllTasks');
 }
 
+// open the modal for removing all tasks tag as done
 const openRemoveAllTagAsDoneModal = () => {
-	model.dialog = true;
+  model.dialog = true;
 }
 
+// open the modal for removing all tasks
 const openRemoveAllTaskModal = () => {
-	model.dialog = true;
-	model.isRemoveAllTask = true;
+  model.dialog = true;
+  model.isRemoveAllTask = true;
 }
 
+// remove a specific task
 const removeTask = (task) => {
-	store.dispatch("tasks/destroy", task);
-	model.snackbarMessage = 'Task has been removed successfully!';
-	model.snackbar = true;
+  store.dispatch("tasks/destroy", task);
+  model.snackbarMessage = 'Task has been removed successfully!';
+  model.snackbar = true;
 }
 
+// fetch all tasks
 const getAllTasks = () => {
-	model.isLoading = true;
-	store.dispatch('tasks/paginate');
+  model.isLoading = true;
+  store.dispatch('tasks/paginate');
 }
 
+// fetch all tasks before mounting the component
 onBeforeMount(async () => {
-	await getAllTasks();
+  await getAllTasks();
 });
 </script>
