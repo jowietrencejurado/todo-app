@@ -14,6 +14,7 @@ export default defineNuxtConfig({
 	modules: [
 		'@vee-validate/nuxt',
 		'nuxt3-vuex-module',
+		'@nuxtjs/google-fonts',
 		(_options, nuxt) => {
 			nuxt.hooks.hook('vite:extendConfig', (config) => {
 				// @ts-expect-error
@@ -21,6 +22,11 @@ export default defineNuxtConfig({
 			})
 		},
 	],
+	googleFonts: {
+    families: {
+			'Montserrat': [500],
+		}
+  },
 	build: {
 		transpile: ['vuetify'],
 	},
