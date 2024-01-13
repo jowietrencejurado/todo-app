@@ -2,6 +2,8 @@
 
 ## Simple tool to organize your tasks
 
+Live Demo: https://jowie-jurado-todo-app.netlify.app/
+
 
 ## Setup
 
